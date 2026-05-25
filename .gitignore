@@ -1,0 +1,13 @@
+# Ignorar ejecutables y compilados de C/C++
+*.exe
+*.out
+*.o
+*.obj
+
+# Ignorar extensiones de VSCode que no son necesarias subir
+.vscode/
+
+# (Opcional) Ignorar las imágenes y archivos de graphviz para no saturar el repositorio
+reportes/*.dot
+reportes/*.png
+reportes/*.jpg
