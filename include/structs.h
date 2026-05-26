@@ -10,8 +10,8 @@ using namespace std;
 struct NodoMatriz {
     int fila;
     int columna;
-    string color; // Aqui guardo el color en Hexadecimal, ej: "#e74c3c"
-    
+    string color; // Aqui guardo el color en Hexadecimal
+
     // Mis punteros ortogonales para moverme por toda la matriz
     NodoMatriz* arriba;
     NodoMatriz* abajo;
@@ -27,34 +27,7 @@ struct NodoMatriz {
     }
 };
 
-// La estructura principal de mi matriz dispersa
-struct MatrizDispersa {
-    // Pendiente: Aqui tengo que meter mis punteros a las cabeceras de filas y columnas
-    // NodoCabecera* filas;
-    // NodoCabecera* columnas;
-    
-    MatrizDispersa() {
-        // Inicializo mi matriz vacia
-    }
-    
-    // Aqui voy a meter los metodos que ya tenia para insertar, buscar, etc.
-};
-
-// El nodo para mi arbol de capas (ABB)
-struct NodoCapa {
-    int id_capa;
-    MatrizDispersa* pixeles; // El corazon de la capa: ¡aqui meto mi matriz dispersa!
-    
-    // Mis punteros para moverme en el arbol binario de busqueda
-    NodoCapa* izquierdo;
-    NodoCapa* derecho;
-
-    // Constructor para cuando necesite crear una capa nueva
-    NodoCapa(int id) {
-        id_capa = id;
-        pixeles = new MatrizDispersa(); // Me aseguro de que cada capa nazca con su matriz lista para usarse
-        izquierdo = derecho = nullptr;
-    }
-};
+// NOTA: Mas adelante aqui agregaremos el Nodo del Arbol de Capas 
+// y el Nodo de la Lista de Imagenes, pero por ahora lo dejamos asi de limpio.
 
 #endif
