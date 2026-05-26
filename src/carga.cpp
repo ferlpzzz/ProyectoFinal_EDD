@@ -3,10 +3,10 @@
 #include <string>
 #include <sstream> 
 #include "../include/carga.h"
+#include "../include/matriz.h" // <-- IMPORTAMOS LA MATRIZ
 
 using namespace std;
 
-// Funcion clave para quitar espacios, saltos y tabs
 string limpiarCadena(string str) {
     string limpia = "";
     for (char c : str) {
@@ -17,7 +17,7 @@ string limpiarCadena(string str) {
     return limpia;
 }
 
-// 1. LECTURA DEL ARCHIVO .CAP
+// 1. LECTURA DEL ARCHIVO .CAP Y CREACION DE MATRICES
 void cargarCapas(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -27,6 +27,9 @@ void cargarCapas(string rutaArchivo) {
 
     string linea;
     int id_capa_actual = -1;
+    
+    // Puntero para la matriz que estemos armando en el momento
+    MatrizDispersa* matrizActual = nullptr; 
 
     cout << "--- INICIANDO CARGA DE CAPAS ---" << endl;
 
@@ -42,6 +45,9 @@ void cargarCapas(string rutaArchivo) {
             if (id_str != "") {
                 id_capa_actual = stoi(id_str);
                 cout << ">> Creando Capa ID: " << id_capa_actual << endl;
+                
+                // Creamos la matriz vacia en la memoria RAM
+                matrizActual = new MatrizDispersa(); 
             } else {
                 cout << ">> ADVERTENCIA: Encontre una capa sin ID." << endl;
                 id_capa_actual = 0;
@@ -59,15 +65,20 @@ void cargarCapas(string rutaArchivo) {
             int fila = stoi(fila_str);
             int columna = stoi(col_str);
 
-            cout << "   Pixel detectado -> Fila: " << fila << " | Col: " << columna << " | Color: " << color << endl;
+            // AQUI OCURRE LA MAGIA: Insertamos el nodo en la matriz dispersa
+            if (matrizActual != nullptr) {
+                matrizActual->insertar(fila, columna, color);
+                cout << "   [Memoria] Pixel insertado en Fila: " << fila << " Columna: " << columna << endl;
+            }
         }
         else if (linea.find('}') != string::npos) {
-            cout << "<< Fin de configuracion para la Capa " << id_capa_actual << "\n" << endl;
+            cout << "<< Matriz de la Capa " << id_capa_actual << " llenada y lista en memoria.\n" << endl;
+            // TODO: Proximamente meteremos este 'matrizActual' adentro del Arbol de Capas
         }
     }
 
     archivo.close();
-    cout << "--- LECTURA FINALIZADA CON EXITO ---" << endl;
+    cout << "--- LECTURA DE CAPAS FINALIZADA CON EXITO ---" << endl;
 }
 
 // 2. LECTURA DEL ARCHIVO .IM
