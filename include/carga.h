@@ -7,5 +7,6 @@ using namespace std;
 // Mis funciones para leer los archivos
 void cargarCapas(string rutaArchivo);
 void cargarImagenes(string rutaArchivo);
+void cargarUsuarios(string rutaArchivo);
 
 #endif

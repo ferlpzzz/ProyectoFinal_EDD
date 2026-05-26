@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream> // La uso para separar los datos usando las comas
+#include <sstream> 
 #include "../include/carga.h"
 
 using namespace std;
 
-// Funcion clave que arme para quitar espacios, saltos y tabs
+// Funcion clave para quitar espacios, saltos y tabs
 string limpiarCadena(string str) {
     string limpia = "";
     for (char c : str) {
@@ -17,7 +17,7 @@ string limpiarCadena(string str) {
     return limpia;
 }
 
-// LECTURA DEL ARCHIVO .CAP
+// 1. LECTURA DEL ARCHIVO .CAP
 void cargarCapas(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -70,7 +70,7 @@ void cargarCapas(string rutaArchivo) {
     cout << "--- LECTURA FINALIZADA CON EXITO ---" << endl;
 }
 
-// LECTURA DEL ARCHIVO .IM
+// 2. LECTURA DEL ARCHIVO .IM
 void cargarImagenes(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -112,4 +112,47 @@ void cargarImagenes(string rutaArchivo) {
 
     archivo.close();
     cout << "--- LECTURA DE IMAGENES FINALIZADA CON EXITO ---" << endl;
+}
+
+// 3. LECTURA DEL ARCHIVO .USR
+void cargarUsuarios(string rutaArchivo) {
+    ifstream archivo(rutaArchivo);
+    if (!archivo.is_open()) {
+        cout << "Error: No pude abrir el archivo en la ruta: " << rutaArchivo << endl;
+        return;
+    }
+
+    string linea;
+    cout << "\n--- INICIANDO CARGA DE USUARIOS ---" << endl;
+
+    while (getline(archivo, linea)) {
+        linea = limpiarCadena(linea); 
+        
+        if (linea.empty()) continue;
+
+        size_t posDosPuntos = linea.find(':');
+        size_t posPuntoComa = linea.find(';');
+
+        if (posDosPuntos != string::npos && posPuntoComa != string::npos) {
+            string nombre_usuario = linea.substr(0, posDosPuntos);
+            
+            cout << ">> Usuario: " << nombre_usuario << " | Imagenes: ";
+
+            string imagenes_str = linea.substr(posDosPuntos + 1, posPuntoComa - posDosPuntos - 1);
+            
+            if (imagenes_str.empty()) {
+                cout << "Ninguna";
+            } else {
+                stringstream ss(imagenes_str);
+                string id_img;
+                while (getline(ss, id_img, ',')) {
+                    cout << "[" << id_img << "] ";
+                }
+            }
+            cout << endl;
+        }
+    }
+
+    archivo.close();
+    cout << "--- LECTURA DE USUARIOS FINALIZADA CON EXITO ---\n" << endl;
 }
