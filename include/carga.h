@@ -4,7 +4,8 @@
 #include <string>
 using namespace std;
 
-// Esta funcion se encargara de recibir la ruta del archivo .cap y leerlo
+// Mis funciones para leer los archivos
 void cargarCapas(string rutaArchivo);
+void cargarImagenes(string rutaArchivo);
 
 #endif
