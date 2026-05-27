@@ -3,9 +3,13 @@
 #include <string>
 #include <sstream> 
 #include "../include/carga.h"
-#include "../include/matriz.h" // <-- IMPORTAMOS LA MATRIZ
+#include "../include/matriz.h"
+#include "../include/arbol_capas.h" // <-- IMPORTAMOS EL ARBOL
 
 using namespace std;
+
+// Arbol global donde viviran todas nuestras capas
+ArbolCapas* arbol_capas = new ArbolCapas();
 
 string limpiarCadena(string str) {
     string limpia = "";
@@ -28,7 +32,6 @@ void cargarCapas(string rutaArchivo) {
     string linea;
     int id_capa_actual = -1;
     
-    // Puntero para la matriz que estemos armando en el momento
     MatrizDispersa* matrizActual = nullptr; 
 
     cout << "--- INICIANDO CARGA DE CAPAS ---" << endl;
@@ -45,8 +48,6 @@ void cargarCapas(string rutaArchivo) {
             if (id_str != "") {
                 id_capa_actual = stoi(id_str);
                 cout << ">> Creando Capa ID: " << id_capa_actual << endl;
-                
-                // Creamos la matriz vacia en la memoria RAM
                 matrizActual = new MatrizDispersa(); 
             } else {
                 cout << ">> ADVERTENCIA: Encontre una capa sin ID." << endl;
@@ -65,15 +66,18 @@ void cargarCapas(string rutaArchivo) {
             int fila = stoi(fila_str);
             int columna = stoi(col_str);
 
-            // AQUI OCURRE LA MAGIA: Insertamos el nodo en la matriz dispersa
             if (matrizActual != nullptr) {
                 matrizActual->insertar(fila, columna, color);
                 cout << "   [Memoria] Pixel insertado en Fila: " << fila << " Columna: " << columna << endl;
             }
         }
         else if (linea.find('}') != string::npos) {
-            cout << "<< Matriz de la Capa " << id_capa_actual << " llenada y lista en memoria.\n" << endl;
-            // TODO: Proximamente meteremos este 'matrizActual' adentro del Arbol de Capas
+            // AQUI GUARDAMOS LA MATRIZ EN EL ARBOL BINARIO
+            if (matrizActual != nullptr) {
+                arbol_capas->insertar(id_capa_actual, matrizActual);
+                cout << "<< Matriz de la Capa " << id_capa_actual << " llenada y guardada en el ABB.\n" << endl;
+                matrizActual = nullptr; // Reseteamos el puntero para la siguiente capa
+            }
         }
     }
 
