@@ -4,12 +4,14 @@
 #include <sstream> 
 #include "../include/carga.h"
 #include "../include/matriz.h"
-#include "../include/arbol_capas.h" // <-- IMPORTAMOS EL ARBOL
+#include "../include/arbol_capas.h"
+#include "../include/lista_imagenes.h" // <-- IMPORTAMOS LA LISTA
 
 using namespace std;
 
-// Arbol global donde viviran todas nuestras capas
+// Estructuras globales
 ArbolCapas* arbol_capas = new ArbolCapas();
+ListaImagenes* lista_imagenes = new ListaImagenes(); // <-- NUESTRA NUEVA LISTA
 
 string limpiarCadena(string str) {
     string limpia = "";
@@ -21,7 +23,7 @@ string limpiarCadena(string str) {
     return limpia;
 }
 
-// 1. LECTURA DEL ARCHIVO .CAP Y CREACION DE MATRICES
+// 1. LECTURA DEL ARCHIVO .CAP
 void cargarCapas(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -68,15 +70,12 @@ void cargarCapas(string rutaArchivo) {
 
             if (matrizActual != nullptr) {
                 matrizActual->insertar(fila, columna, color);
-                cout << "   [Memoria] Pixel insertado en Fila: " << fila << " Columna: " << columna << endl;
             }
         }
         else if (linea.find('}') != string::npos) {
-            // AQUI GUARDAMOS LA MATRIZ EN EL ARBOL BINARIO
             if (matrizActual != nullptr) {
                 arbol_capas->insertar(id_capa_actual, matrizActual);
-                cout << "<< Matriz de la Capa " << id_capa_actual << " llenada y guardada en el ABB.\n" << endl;
-                matrizActual = nullptr; // Reseteamos el puntero para la siguiente capa
+                matrizActual = nullptr; 
             }
         }
     }
@@ -85,7 +84,7 @@ void cargarCapas(string rutaArchivo) {
     cout << "--- LECTURA DE CAPAS FINALIZADA CON EXITO ---" << endl;
 }
 
-// 2. LECTURA DEL ARCHIVO .IM
+// 2. LECTURA DEL ARCHIVO .IM Y CONEXION A LA LISTA CIRCULAR
 void cargarImagenes(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -108,20 +107,25 @@ void cargarImagenes(string rutaArchivo) {
             string id_img_str = linea.substr(0, posLlaveAbre);
             int id_imagen = stoi(id_img_str);
             
-            cout << ">> Imagen ID: " << id_imagen << " | Capas: ";
+            cout << "\n>> Procesando Imagen ID: " << id_imagen << endl;
+
+            // AQUI OCURRE LA MAGIA: Guardamos la imagen en la lista circular
+            lista_imagenes->insertar(id_imagen);
 
             string capas_str = linea.substr(posLlaveAbre + 1, posLlaveCierra - posLlaveAbre - 1);
             
             if (capas_str.empty()) {
-                cout << "Ninguna (Se generara pixel negro)";
+                cout << "   - Ninguna capa asignada (Se generara pixel negro)" << endl;
             } else {
                 stringstream ss(capas_str);
                 string id_capa;
                 while (getline(ss, id_capa, ',')) {
-                    cout << "[" << id_capa << "] ";
+                    cout << "   - Agregando Capa [" << id_capa << "] a la Imagen " << id_imagen << endl;
+                    
+                    // AQUI METEMOS LAS CAPAS A LA SUBLISTA DE LA IMAGEN
+                    lista_imagenes->agregarCapa(id_imagen, stoi(id_capa));
                 }
             }
-            cout << endl;
         }
     }
 
