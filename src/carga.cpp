@@ -5,13 +5,15 @@
 #include "../include/carga.h"
 #include "../include/matriz.h"
 #include "../include/arbol_capas.h"
-#include "../include/lista_imagenes.h" // <-- IMPORTAMOS LA LISTA
+#include "../include/lista_imagenes.h"
+#include "../include/arbol_usuarios.h" // <-- IMPORTAMOS EL ARBOL DE USUARIOS
 
 using namespace std;
 
 // Estructuras globales
 ArbolCapas* arbol_capas = new ArbolCapas();
-ListaImagenes* lista_imagenes = new ListaImagenes(); // <-- NUESTRA NUEVA LISTA
+ListaImagenes* lista_imagenes = new ListaImagenes();
+ArbolUsuarios* arbol_usuarios = new ArbolUsuarios(); // <-- NUESTRO NUEVO ARBOL
 
 string limpiarCadena(string str) {
     string limpia = "";
@@ -84,7 +86,7 @@ void cargarCapas(string rutaArchivo) {
     cout << "--- LECTURA DE CAPAS FINALIZADA CON EXITO ---" << endl;
 }
 
-// 2. LECTURA DEL ARCHIVO .IM Y CONEXION A LA LISTA CIRCULAR
+// 2. LECTURA DEL ARCHIVO .IM
 void cargarImagenes(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -109,7 +111,6 @@ void cargarImagenes(string rutaArchivo) {
             
             cout << "\n>> Procesando Imagen ID: " << id_imagen << endl;
 
-            // AQUI OCURRE LA MAGIA: Guardamos la imagen en la lista circular
             lista_imagenes->insertar(id_imagen);
 
             string capas_str = linea.substr(posLlaveAbre + 1, posLlaveCierra - posLlaveAbre - 1);
@@ -121,8 +122,6 @@ void cargarImagenes(string rutaArchivo) {
                 string id_capa;
                 while (getline(ss, id_capa, ',')) {
                     cout << "   - Agregando Capa [" << id_capa << "] a la Imagen " << id_imagen << endl;
-                    
-                    // AQUI METEMOS LAS CAPAS A LA SUBLISTA DE LA IMAGEN
                     lista_imagenes->agregarCapa(id_imagen, stoi(id_capa));
                 }
             }
@@ -133,7 +132,7 @@ void cargarImagenes(string rutaArchivo) {
     cout << "--- LECTURA DE IMAGENES FINALIZADA CON EXITO ---" << endl;
 }
 
-// 3. LECTURA DEL ARCHIVO .USR
+// 3. LECTURA DEL ARCHIVO .USR Y CONEXION AL ARBOL
 void cargarUsuarios(string rutaArchivo) {
     ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -155,20 +154,23 @@ void cargarUsuarios(string rutaArchivo) {
         if (posDosPuntos != string::npos && posPuntoComa != string::npos) {
             string nombre_usuario = linea.substr(0, posDosPuntos);
             
-            cout << ">> Usuario: " << nombre_usuario << " | Imagenes: ";
+            cout << "\n>> Procesando Usuario: " << nombre_usuario << endl;
+
+            // AQUI OCURRE LA MAGIA: Guardamos el usuario en el arbol
+            arbol_usuarios->insertar(nombre_usuario);
 
             string imagenes_str = linea.substr(posDosPuntos + 1, posPuntoComa - posDosPuntos - 1);
             
             if (imagenes_str.empty()) {
-                cout << "Ninguna";
+                cout << "   - Ninguna imagen asignada." << endl;
             } else {
                 stringstream ss(imagenes_str);
                 string id_img;
                 while (getline(ss, id_img, ',')) {
-                    cout << "[" << id_img << "] ";
+                    // AQUI LE ASIGNAMOS LA IMAGEN AL USUARIO EN SU SUBLISTA
+                    arbol_usuarios->agregarImagen(nombre_usuario, stoi(id_img));
                 }
             }
-            cout << endl;
         }
     }
 
