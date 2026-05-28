@@ -39,6 +39,9 @@ public:
     ListaImagenes();
     void insertar(int id_imagen);
     void agregarCapa(int id_imagen, int id_capa);
+    
+    // --- NUEVO METODO CRUD ---
+    void eliminarImagen(int id_imagen);
 };
 
 #endif

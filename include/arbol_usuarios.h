@@ -40,10 +40,19 @@ public:
     ArbolUsuarios();
     void insertar(string nombre);
     void agregarImagen(string nombre, int id_imagen);
+    
+    // --- NUEVOS METODOS CRUD ---
+    void modificarUsuario(string nombreViejo, string nombreNuevo);
+    void eliminarUsuario(string nombre);
+    void eliminarImagenDeUsuario(string nombre, int id_imagen);
 
 private:
     NodoUsuario* insertarRecursivo(NodoUsuario* nodo, string nombre);
     NodoUsuario* buscarUsuario(NodoUsuario* nodo, string nombre);
+    
+    // --- METODOS PRIVADOS PARA ELIMINAR NODOS DEL ABB ---
+    NodoUsuario* eliminarRecursivo(NodoUsuario* nodo, string nombre);
+    NodoUsuario* encontrarMinimo(NodoUsuario* nodo);
 };
 
 #endif

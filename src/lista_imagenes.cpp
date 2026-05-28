@@ -60,3 +60,55 @@ void ListaImagenes::agregarCapa(int id_imagen, int id_capa) {
         }
     }
 }
+
+// --- LOGICA DEL CRUD DE IMAGENES ---
+void ListaImagenes::eliminarImagen(int id_imagen) {
+    if (cabeza == nullptr) {
+        cout << "Error: La lista de imagenes esta vacia." << endl;
+        return;
+    }
+
+    NodoImagen* actual = cabeza;
+    bool encontrada = false;
+
+    // Buscamos el nodo a eliminar
+    do {
+        if (actual->id_imagen == id_imagen) {
+            encontrada = true;
+            break;
+        }
+        actual = actual->siguiente;
+    } while (actual != cabeza);
+
+    if (!encontrada) {
+        cout << "Error: La imagen [" << id_imagen << "] no existe en la lista general." << endl;
+        return;
+    }
+
+    // 1. Antes de borrar la imagen, liberamos su sub-lista de capas de la memoria
+    NodoCapaLista* capaAux = actual->capas_cabeza;
+    while (capaAux != nullptr) {
+        NodoCapaLista* borrarCapa = capaAux;
+        capaAux = capaAux->siguiente;
+        delete borrarCapa;
+    }
+
+    // 2. Desenlazamos el nodo de la lista circular
+    if (actual->siguiente == actual) {
+        // Caso A: Era la unica imagen en toda la lista
+        cabeza = nullptr;
+    } else {
+        // Caso B: Hay mas imagenes. Conectamos al anterior con el siguiente.
+        actual->anterior->siguiente = actual->siguiente;
+        actual->siguiente->anterior = actual->anterior;
+        
+        // Si la imagen a borrar era la cabeza, movemos la cabeza al siguiente nodo
+        if (actual == cabeza) {
+            cabeza = actual->siguiente;
+        }
+    }
+
+    // 3. Borramos el nodo fisicamente
+    delete actual;
+    cout << "Imagen [" << id_imagen << "] eliminada de la lista circular exitosamente." << endl;
+}

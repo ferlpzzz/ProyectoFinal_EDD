@@ -12,6 +12,130 @@ extern ArbolCapas* arbol_capas;
 extern ListaImagenes* lista_imagenes;
 extern ArbolUsuarios* arbol_usuarios; 
 
+// --- SUB-MENU CRUD (MANTENIMIENTO) ---
+void menuCRUD() {
+    int opcion = 0;
+    do {
+        cout << "\n--- MANTENIMIENTO ---" << endl;
+        cout << " 1. Agregar Usuario" << endl;
+        cout << " 2. Modificar Usuario" << endl;
+        cout << " 3. Eliminar Usuario" << endl;
+        cout << " 4. Agregar Imagen a Usuario" << endl;
+        cout << " 5. Eliminar Imagen de Usuario" << endl;
+        cout << " 6. Regresar al Menu Principal" << endl;
+        cout << "----------------------------" << endl;
+        cout << "Ingrese una opcion: ";
+        
+        if (!(cin >> opcion)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            opcion = 0;
+        }
+
+        switch(opcion) {
+            case 1: {
+                string nombreUser;
+                cout << "\nIngrese el nombre del nuevo usuario: ";
+                cin >> nombreUser;
+                arbol_usuarios->insertar(nombreUser);
+                break;
+            }
+            case 2: {
+                string viejo, nuevo;
+                cout << "\nIngrese el nombre del usuario a modificar: ";
+                cin >> viejo;
+                cout << "Ingrese el NUEVO nombre para el usuario: ";
+                cin >> nuevo;
+                arbol_usuarios->modificarUsuario(viejo, nuevo);
+                break;
+            }
+            case 3: {
+                string nombreUser;
+                cout << "\nIngrese el nombre del usuario a eliminar: ";
+                cin >> nombreUser;
+                arbol_usuarios->eliminarUsuario(nombreUser);
+                break;
+            }
+            case 4: {
+                string nombreUser;
+                cout << "\nIngrese el nombre del usuario dueno de la imagen: ";
+                cin >> nombreUser;
+                
+                // 1. Verificamos que el usuario exista
+                NodoUsuario* actual = arbol_usuarios->raiz;
+                while (actual != nullptr) {
+                    if (actual->nombre == nombreUser) break;
+                    if (nombreUser < actual->nombre) actual = actual->izquierda;
+                    else actual = actual->derecha;
+                }
+
+                if (actual == nullptr) {
+                    cout << "Error: El usuario '" << nombreUser << "' no existe." << endl;
+                } else {
+                    int idImg;
+                    cout << "Ingrese el ID de la nueva imagen: ";
+                    if (!(cin >> idImg)) {
+                        cin.clear();
+                        cin.ignore(10000, '\n');
+                        cout << "Error: ID invalido." << endl;
+                        break;
+                    }
+
+                    // 2. Verificamos que el ID de la imagen NO exista en la lista circular
+                    bool existe = false;
+                    if (lista_imagenes->cabeza != nullptr) {
+                        NodoImagen* aux = lista_imagenes->cabeza;
+                        do {
+                            if (aux->id_imagen == idImg) {
+                                existe = true;
+                                break;
+                            }
+                            aux = aux->siguiente;
+                        } while (aux != lista_imagenes->cabeza);
+                    }
+
+                    if (existe) {
+                        cout << "Error: La imagen con ID " << idImg << " ya existe en el sistema." << endl;
+                    } else {
+                        // 3. Insertamos en la lista circular general y luego en el usuario
+                        lista_imagenes->insertar(idImg);
+                        arbol_usuarios->agregarImagen(nombreUser, idImg);
+                        cout << "Imagen agregada con exito." << endl;
+                    }
+                }
+                break;
+            }
+            case 5: {
+                string nombreUser;
+                cout << "\nIngrese el nombre del usuario dueno de la imagen a eliminar: ";
+                cin >> nombreUser;
+                
+                int idImg;
+                cout << "Ingrese el ID de la imagen a eliminar: ";
+                if (!(cin >> idImg)) {
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Error: ID invalido." << endl;
+                    break;
+                }
+                
+                // 1. Borramos de la lista del usuario (si la tiene)
+                arbol_usuarios->eliminarImagenDeUsuario(nombreUser, idImg);
+                
+                // 2. Borramos de la lista circular general (y limpiamos sus capas en memoria)
+                lista_imagenes->eliminarImagen(idImg);
+                break;
+            }
+            case 6:
+                cout << "\nRegresando..." << endl;
+                break;
+            default:
+                if (opcion != 0) cout << "\nOpcion no valida." << endl;
+        }
+    } while (opcion != 6);
+}
+
+// --- SUB-MENU GENERACION DE IMAGENES ---
 void menuGeneracionImagenes() {
     int opcion = 0;
     do {
@@ -135,6 +259,7 @@ void menuGeneracionImagenes() {
     } while (opcion != 5);
 }
 
+// --- MENU PRINCIPAL ---
 void menuPrincipal() {
     int opcion = 0;
     do {
@@ -146,7 +271,8 @@ void menuPrincipal() {
         cout << " 3. Generar Reporte de Imagenes" << endl;
         cout << " 4. Generar Reporte de Usuarios" << endl;
         cout << " 5. Generar Imagen Final" << endl;
-        cout << " 6. Salir" << endl;
+        cout << " 6. Mantenimiento" << endl;
+        cout << " 7. Salir" << endl;
         cout << "========================================" << endl;
         cout << "Ingrese una opcion: ";
         
@@ -176,12 +302,15 @@ void menuPrincipal() {
                 menuGeneracionImagenes();
                 break;
             case 6:
+                menuCRUD();
+                break;
+            case 7:
                 cout << "\nSaliendo del programa. ¡Nos vemos!" << endl;
                 break;
             default:
-                if (opcion != 0) cout << "\nOpcion no valida." << endl;
+                if (opcion != 0) cout << "\nOpcion no valida. Por favor intente de nuevo." << endl;
         }
-    } while(opcion != 6);
+    } while(opcion != 7);
 }
 
 int main() {
