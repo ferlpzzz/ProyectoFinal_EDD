@@ -117,3 +117,55 @@ void graficarListaImagenes(ListaImagenes* lista) {
     system("dot -Tpng ../output/lista_imagenes.dot -o ../output/lista_imagenes.png");
     cout << "Reporte generado exitosamente: revisa tu carpeta 'output'." << endl;
 }
+
+// Funcion recursiva para el arbol de usuarios
+void escribirNodosUsuariosABB(NodoUsuario* nodo, ofstream& archivo) {
+    if (nodo == nullptr) return;
+
+    // Armamos un string con los IDs de las imagenes que tiene el usuario
+    string imgs = "";
+    NodoImagenUsuario* aux = nodo->imagenes_cabeza;
+    while (aux != nullptr) {
+        imgs += "[" + to_string(aux->id_imagen) + "] ";
+        aux = aux->siguiente;
+    }
+    if (imgs == "") imgs = "Ninguna";
+
+    // Escribimos la caja del nodo actual (ponemos comillas en el ID del nodo por si el nombre tiene espacios)
+    archivo << "    \"" << nodo->nombre << "\" [label=\"Usuario: " << nodo->nombre << "\\nImagenes: " << imgs << "\"];\n";
+
+    // Llamadas recursivas y dibujo de flechas
+    if (nodo->izquierda != nullptr) {
+        archivo << "    \"" << nodo->nombre << "\" -> \"" << nodo->izquierda->nombre << "\";\n";
+        escribirNodosUsuariosABB(nodo->izquierda, archivo);
+    }
+    if (nodo->derecha != nullptr) {
+        archivo << "    \"" << nodo->nombre << "\" -> \"" << nodo->derecha->nombre << "\";\n";
+        escribirNodosUsuariosABB(nodo->derecha, archivo);
+    }
+}
+
+void graficarArbolUsuarios(ArbolUsuarios* arbol) {
+    cout << "\nGenerando reporte del Arbol de Usuarios..." << endl;
+    
+    ofstream archivo("../output/arbol_usuarios.dot");
+    if (!archivo.is_open()) {
+        cout << "Error: No se pudo crear el archivo dot en output." << endl;
+        return;
+    }
+
+    archivo << "digraph ArbolUsuarios {\n";
+    archivo << "    node [shape=box, style=filled, fillcolor=orange, fontcolor=black];\n";
+    
+    if (arbol->raiz != nullptr) {
+        escribirNodosUsuariosABB(arbol->raiz, archivo);
+    } else {
+        archivo << "    vacio [label=\"Arbol Vacio\"];\n";
+    }
+
+    archivo << "}\n";
+    archivo.close();
+
+    system("dot -Tpng ../output/arbol_usuarios.dot -o ../output/arbol_usuarios.png");
+    cout << "Reporte generado exitosamente: revisa tu carpeta 'output'." << endl;
+}
