@@ -21,6 +21,11 @@ public:
 
     // El metodo principal que usaremos desde carga.cpp
     void insertar(int fila, int columna, string color);
+
+    // --- NUEVOS METODOS PARA GENERAR LA IMAGEN ---
+    string obtenerPixel(int fila, int columna);
+    int getMaxFila();
+    int getMaxColumna();
 };
 
 #endif

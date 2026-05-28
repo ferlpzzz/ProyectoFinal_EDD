@@ -24,6 +24,9 @@ public:
 
     ArbolCapas();
     void insertar(int id_capa, MatrizDispersa* matriz);
+    
+    // --- NUEVO METODO PARA BUSCAR LA CAPA ---
+    MatrizDispersa* buscarCapa(int id_capa);
 
 private:
     // Funcion recursiva para no perder los punteros al insertar

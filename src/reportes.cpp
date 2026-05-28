@@ -1,7 +1,7 @@
 #include "../include/reportes.h"
 #include <iostream>
 #include <fstream>
-#include <cstdlib> // Para usar la funcion system()
+#include <cstdlib> 
 
 using namespace std;
 
@@ -168,4 +168,100 @@ void graficarArbolUsuarios(ArbolUsuarios* arbol) {
 
     system("dot -Tpng ../output/arbol_usuarios.dot -o ../output/arbol_usuarios.png");
     cout << "Reporte generado exitosamente: revisa tu carpeta 'output'." << endl;
+}
+
+
+void generarImagenPorLista(int id_imagen, ListaImagenes* lista, ArbolCapas* arbol) {
+    if (lista->cabeza == nullptr) {
+        cout << "Error: La lista de imagenes esta vacia." << endl;
+        return;
+    }
+
+    // 1. Buscar la imagen en la lista circular
+    NodoImagen* imgActual = lista->cabeza;
+    bool encontrada = false;
+    do {
+        if (imgActual->id_imagen == id_imagen) {
+            encontrada = true;
+            break;
+        }
+        imgActual = imgActual->siguiente;
+    } while (imgActual != lista->cabeza);
+
+    if (!encontrada) {
+        cout << "Error: La imagen " << id_imagen << " no existe." << endl;
+        return;
+    }
+
+    cout << "\n[Procesando Imagen " << id_imagen << "]" << endl;
+
+    // 2. Calcular el tamano maximo del lienzo (Filas y Columnas)
+    int anchoMax = 0;
+    int altoMax = 0;
+    NodoCapaLista* capaAux = imgActual->capas_cabeza;
+    
+    while (capaAux != nullptr) {
+        MatrizDispersa* matrizCapa = arbol->buscarCapa(capaAux->id_capa);
+        if (matrizCapa != nullptr) {
+            int maxF = matrizCapa->getMaxFila();
+            int maxC = matrizCapa->getMaxColumna();
+            if (maxF > altoMax) altoMax = maxF;
+            if (maxC > anchoMax) anchoMax = maxC;
+        }
+        capaAux = capaAux->siguiente;
+    }
+
+    if (altoMax == 0 || anchoMax == 0) {
+        cout << "La imagen no tiene capas validas (Se generaria pixel negro)." << endl;
+        return;
+    }
+
+    // 3. Generar el archivo DOT con el nodo tipo HTML (Tabla de Colores)
+    string rutaDot = "../output/imagen_final_" + to_string(id_imagen) + ".dot";
+    ofstream archivo(rutaDot);
+    
+    archivo << "digraph ImagenFinal {\n";
+    archivo << "    node [shape=none, margin=0];\n"; // margin=0 quita bordes extra
+    archivo << "    tabla [label=<\n";
+    archivo << "        <table border=\"0\" cellspacing=\"0\" cellpadding=\"15\">\n";
+
+    // Recorremos la cuadricula celda por celda
+    for (int f = 1; f <= altoMax; f++) {
+        archivo << "            <tr>\n";
+        for (int c = 1; c <= anchoMax; c++) {
+            string colorFinal = "transparent";
+            
+            // Revisamos cada capa en orden. Si la capa superior tiene color, sobreescribe al de abajo.
+            NodoCapaLista* capaRevisar = imgActual->capas_cabeza;
+            while (capaRevisar != nullptr) {
+                MatrizDispersa* mat = arbol->buscarCapa(capaRevisar->id_capa);
+                if (mat != nullptr) {
+                    string colorPixel = mat->obtenerPixel(f, c);
+                    if (colorPixel != "") {
+                        colorFinal = colorPixel;
+                    }
+                }
+                capaRevisar = capaRevisar->siguiente;
+            }
+            
+            // Pintamos el cuadrito de color en HTML
+            if (colorFinal != "transparent") {
+                archivo << "                <td bgcolor=\"" << colorFinal << "\"></td>\n";
+            } else {
+                archivo << "                <td bgcolor=\"white\"></td>\n";
+            }
+        }
+        archivo << "            </tr>\n";
+    }
+
+    archivo << "        </table>\n";
+    archivo << "    >];\n";
+    archivo << "}\n";
+    archivo.close();
+
+    // 4. Compilar con Graphviz
+    string comando = "dot -Tpng " + rutaDot + " -o ../output/imagen_final_" + to_string(id_imagen) + ".png";
+    system(comando.c_str());
+    
+    cout << "¡Imagen Final " << id_imagen << " dibujada exitosamente en la carpeta 'output'!" << endl;
 }

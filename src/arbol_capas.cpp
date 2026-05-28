@@ -36,3 +36,14 @@ NodoCapas* ArbolCapas::insertarRecursivo(NodoCapas* nodo, int id_capa, MatrizDis
 
     return nodo; // Retornamos el nodo para no romper la cadena
 }
+
+// --- NUEVO METODO PARA BUSCAR LA CAPA ---
+MatrizDispersa* ArbolCapas::buscarCapa(int id_capa) {
+    NodoCapas* actual = raiz;
+    while (actual != nullptr) {
+        if (id_capa == actual->id_capa) return actual->matriz;
+        if (id_capa < actual->id_capa) actual = actual->izquierda;
+        else actual = actual->derecha;
+    }
+    return nullptr; // Retorna null si la capa no existe
+}

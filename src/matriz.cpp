@@ -109,3 +109,41 @@ void MatrizDispersa::insertar(int fila, int columna, string color) {
     actualC->abajo = nuevo;
     nuevo->arriba = actualC;
 }
+
+// --- METODOS NUEVOS PARA GENERAR LA IMAGEN ---
+
+string MatrizDispersa::obtenerPixel(int fila, int columna) {
+    NodoMatriz* auxFila = buscarFila(fila);
+    if (auxFila == nullptr) return ""; // Si la fila no existe, es un espacio vacio
+
+    NodoMatriz* actual = auxFila->derecha;
+    while (actual != nullptr) {
+        if (actual->columna == columna) {
+            return actual->color;
+        }
+        actual = actual->derecha;
+    }
+    return ""; // Si llegamos aca, la celda especifica esta vacia
+}
+
+int MatrizDispersa::getMaxFila() {
+    if (raiz == nullptr || raiz->abajo == nullptr) return 0;
+    NodoMatriz* aux = raiz->abajo;
+    int maxF = 0;
+    while (aux != nullptr) {
+        if (aux->fila > maxF) maxF = aux->fila;
+        aux = aux->abajo;
+    }
+    return maxF;
+}
+
+int MatrizDispersa::getMaxColumna() {
+    if (raiz == nullptr || raiz->derecha == nullptr) return 0;
+    NodoMatriz* aux = raiz->derecha;
+    int maxC = 0;
+    while (aux != nullptr) {
+        if (aux->columna > maxC) maxC = aux->columna;
+        aux = aux->derecha;
+    }
+    return maxC;
+}
