@@ -12,8 +12,9 @@ void graficarArbolCapas(ArbolCapas* arbol);
 void graficarListaImagenes(ListaImagenes* lista);
 void graficarArbolUsuarios(ArbolUsuarios* arbol);
 void generarImagenPorLista(int id_imagen, ListaImagenes* lista, ArbolCapas* arbol);
-
-// --- NUEVA FUNCION PARA LA CAPA INDIVIDUAL ---
 void generarImagenPorCapa(int id_capa, ArbolCapas* arbol);
+
+// --- NUEVA FUNCION PARA EL RECORRIDO ---
+void generarImagenPorRecorrido(int n, int tipo, ArbolCapas* arbol);
 
 #endif

@@ -24,7 +24,6 @@ void menuGeneracionImagenes() {
         cout << "-----------------------------------------" << endl;
         cout << "Ingrese una opcion: ";
         
-        // Blindaje contra letras o caracteres invalidos
         if (!(cin >> opcion)) {
             cin.clear();
             cin.ignore(10000, '\n');
@@ -58,7 +57,7 @@ void menuGeneracionImagenes() {
             }
             case 3: {
                 string nombreUser;
-                cout << "\nIngrese el nombre del usuario (ej. userA): ";
+                cout << "\nIngrese el nombre del usuario: ";
                 cin >> nombreUser;
 
                 NodoUsuario* actual = arbol_usuarios->raiz;
@@ -69,24 +68,24 @@ void menuGeneracionImagenes() {
                 }
 
                 if (actual == nullptr) {
-                    cout << "Error: El usuario '" << nombreUser << "' no existe." << endl;
+                    cout << "Error: El usuario no existe." << endl;
                 } else {
                     if (actual->imagenes_cabeza == nullptr) {
-                        cout << "El usuario '" << nombreUser << "' no tiene imagenes asignadas." << endl;
+                        cout << "El usuario no tiene imagenes asignadas." << endl;
                     } else {
-                        cout << "Imagenes disponibles para " << nombreUser << ": ";
+                        cout << "Imagenes disponibles: ";
                         NodoImagenUsuario* aux = actual->imagenes_cabeza;
                         while (aux != nullptr) {
                             cout << "[" << aux->id_imagen << "] ";
                             aux = aux->siguiente;
                         }
                         
-                        cout << "\nIngrese el ID de la imagen que desea generar: ";
+                        cout << "\nIngrese el ID de la imagen: ";
                         int idImg;
                         if (!(cin >> idImg)) {
                             cin.clear();
                             cin.ignore(10000, '\n');
-                            cout << "Error: Debes ingresar un numero valido." << endl;
+                            cout << "Error: Debes ingresar un numero." << endl;
                             break;
                         }
 
@@ -100,15 +99,33 @@ void menuGeneracionImagenes() {
                         if (laTiene) {
                             generarImagenPorLista(idImg, lista_imagenes, arbol_capas);
                         } else {
-                            cout << "Error: La imagen " << idImg << " no pertenece a este usuario." << endl;
+                            cout << "Error: La imagen no pertenece a este usuario." << endl;
                         }
                     }
                 }
                 break;
             }
-            case 4:
-                cout << "\n[Generando imagen por recorrido limitado...] -> Proximamente" << endl;
+            case 4: {
+                int n, tipo;
+                cout << "\nIngrese el numero de capas a utilizar: ";
+                if (!(cin >> n) || n <= 0) {
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Error: Ingresa un numero mayor a 0." << endl;
+                    break;
+                }
+                
+                cout << "\nTipos de recorrido:\n 1. Preorden\n 2. Inorden\n 3. Postorden\n";
+                cout << "Ingrese el tipo de recorrido: ";
+                if (!(cin >> tipo) || tipo < 1 || tipo > 3) {
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Error: Tipo de recorrido invalido." << endl;
+                    break;
+                }
+                generarImagenPorRecorrido(n, tipo, arbol_capas);
                 break;
+            }
             case 5:
                 cout << "\nRegresando..." << endl;
                 break;
@@ -133,7 +150,6 @@ void menuPrincipal() {
         cout << "========================================" << endl;
         cout << "Ingrese una opcion: ";
         
-        // Blindaje principal
         if (!(cin >> opcion)) {
             cin.clear();
             cin.ignore(10000, '\n');
@@ -163,7 +179,7 @@ void menuPrincipal() {
                 cout << "\nSaliendo del programa. ¡Nos vemos!" << endl;
                 break;
             default:
-                if (opcion != 0) cout << "\nOpcion no valida. Por favor intente de nuevo." << endl;
+                if (opcion != 0) cout << "\nOpcion no valida." << endl;
         }
     } while(opcion != 6);
 }

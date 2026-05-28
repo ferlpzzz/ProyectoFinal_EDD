@@ -188,7 +188,7 @@ void generarImagenPorLista(int id_imagen, ListaImagenes* lista, ArbolCapas* arbo
     }
 
     if (altoMax == 0 || anchoMax == 0) {
-        cout << "La imagen no tiene capas validas (Se generaria pixel negro)." << endl;
+        cout << "La imagen no tiene capas validas." << endl;
         return;
     }
 
@@ -237,7 +237,6 @@ void generarImagenPorLista(int id_imagen, ListaImagenes* lista, ArbolCapas* arbo
     cout << "¡Imagen Final " << id_imagen << " dibujada exitosamente en la carpeta 'output'!" << endl;
 }
 
-// --- MAGIA PARA GENERAR CAPA INDIVIDUAL ---
 void generarImagenPorCapa(int id_capa, ArbolCapas* arbol) {
     MatrizDispersa* matriz = arbol->buscarCapa(id_capa);
     if (matriz == nullptr) {
@@ -286,4 +285,125 @@ void generarImagenPorCapa(int id_capa, ArbolCapas* arbol) {
     system(comando.c_str());
     
     cout << "¡Capa individual " << id_capa << " dibujada exitosamente en la carpeta 'output'!" << endl;
+}
+
+// --- LOGICA DE RECORRIDOS ---
+
+void recPreorden(NodoCapas* nodo, int* arr, int n, int& cont) {
+    if (nodo == nullptr || cont >= n) return;
+    arr[cont++] = nodo->id_capa;
+    recPreorden(nodo->izquierda, arr, n, cont);
+    recPreorden(nodo->derecha, arr, n, cont);
+}
+
+void recInorden(NodoCapas* nodo, int* arr, int n, int& cont) {
+    if (nodo == nullptr || cont >= n) return;
+    recInorden(nodo->izquierda, arr, n, cont);
+    if (cont < n) arr[cont++] = nodo->id_capa;
+    recInorden(nodo->derecha, arr, n, cont);
+}
+
+void recPostorden(NodoCapas* nodo, int* arr, int n, int& cont) {
+    if (nodo == nullptr || cont >= n) return;
+    recPostorden(nodo->izquierda, arr, n, cont);
+    recPostorden(nodo->derecha, arr, n, cont);
+    if (cont < n) arr[cont++] = nodo->id_capa;
+}
+
+void generarImagenPorRecorrido(int n, int tipo, ArbolCapas* arbol) {
+    if (arbol->raiz == nullptr) {
+        cout << "Error: El arbol de capas esta vacio." << endl;
+        return;
+    }
+
+    int* capasRecorridas = new int[n];
+    int encontradas = 0;
+    string nombreRecorrido = "";
+
+    if (tipo == 1) {
+        recPreorden(arbol->raiz, capasRecorridas, n, encontradas);
+        nombreRecorrido = "Preorden";
+    } else if (tipo == 2) {
+        recInorden(arbol->raiz, capasRecorridas, n, encontradas);
+        nombreRecorrido = "Inorden";
+    } else if (tipo == 3) {
+        recPostorden(arbol->raiz, capasRecorridas, n, encontradas);
+        nombreRecorrido = "Postorden";
+    } else {
+        cout << "Tipo de recorrido no valido." << endl;
+        delete[] capasRecorridas;
+        return;
+    }
+
+    if (encontradas == 0) {
+        cout << "No se encontraron capas en el arbol." << endl;
+        delete[] capasRecorridas;
+        return;
+    }
+
+    cout << "\n[Generando imagen por " << nombreRecorrido << " con " << encontradas << " capas encontradas]" << endl;
+
+    int altoMax = 0;
+    int anchoMax = 0;
+
+    for (int i = 0; i < encontradas; i++) {
+        MatrizDispersa* mat = arbol->buscarCapa(capasRecorridas[i]);
+        if (mat != nullptr) {
+            int maxF = mat->getMaxFila();
+            int maxC = mat->getMaxColumna();
+            if (maxF > altoMax) altoMax = maxF;
+            if (maxC > anchoMax) anchoMax = maxC;
+        }
+    }
+
+    if (altoMax == 0 || anchoMax == 0) {
+        cout << "Las capas obtenidas no tienen pixeles para dibujar." << endl;
+        delete[] capasRecorridas;
+        return;
+    }
+
+    string rutaDot = "../output/imagen_recorrido_" + nombreRecorrido + ".dot";
+    ofstream archivo(rutaDot);
+    
+    archivo << "digraph Recorrido {\n";
+    archivo << "    node [shape=none, margin=0];\n"; 
+    archivo << "    tabla [label=<\n";
+    archivo << "        <table border=\"0\" cellspacing=\"0\" cellpadding=\"15\">\n";
+
+    for (int f = 1; f <= altoMax; f++) {
+        archivo << "            <tr>\n";
+        for (int c = 1; c <= anchoMax; c++) {
+            string colorFinal = "transparent";
+            
+            // Apilamos las capas segun el orden en que las encontramos en el recorrido
+            for (int i = 0; i < encontradas; i++) {
+                MatrizDispersa* mat = arbol->buscarCapa(capasRecorridas[i]);
+                if (mat != nullptr) {
+                    string colorPixel = mat->obtenerPixel(f, c);
+                    if (colorPixel != "") {
+                        colorFinal = colorPixel;
+                    }
+                }
+            }
+            
+            if (colorFinal != "transparent") {
+                archivo << "                <td bgcolor=\"" << colorFinal << "\"></td>\n";
+            } else {
+                archivo << "                <td bgcolor=\"white\"></td>\n";
+            }
+        }
+        archivo << "            </tr>\n";
+    }
+
+    archivo << "        </table>\n";
+    archivo << "    >];\n";
+    archivo << "}\n";
+    archivo.close();
+
+    string comando = "dot -Tpng " + rutaDot + " -o ../output/imagen_recorrido_" + nombreRecorrido + ".png";
+    system(comando.c_str());
+    
+    cout << "¡Imagen por " << nombreRecorrido << " dibujada exitosamente en la carpeta 'output'!" << endl;
+
+    delete[] capasRecorridas; // Liberamos memoria de forma limpia
 }

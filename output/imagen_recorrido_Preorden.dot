@@ -1,0 +1,70 @@
+digraph Recorrido {
+    node [shape=none, margin=0];
+    tabla [label=<
+        <table border="0" cellspacing="0" cellpadding="15">
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#000000"></td>
+                <td bgcolor="#FFFF00"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+            <tr>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+                <td bgcolor="#808080"></td>
+            </tr>
+        </table>
+    >];
+}
