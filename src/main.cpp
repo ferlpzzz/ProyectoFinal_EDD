@@ -1,23 +1,26 @@
 #include <iostream>
 #include "../include/carga.h"
 #include "../include/arbol_capas.h"
-#include "../include/reportes.h" // <-- IMPORTAMOS REPORTES
+#include "../include/lista_imagenes.h" // <-- IMPORTAMOS LA LISTA
+#include "../include/reportes.h" 
 
 using namespace std;
 
-// Traemos el arbol global que definimos en carga.cpp
+// Traemos las estructuras globales
 extern ArbolCapas* arbol_capas; 
+extern ListaImagenes* lista_imagenes; // <-- TRAEMOS LA LISTA
 
 void menuPrincipal() {
     int opcion = 0;
     
     do {
         cout << "\n========================================" << endl;
-        cout << "       GENERADOR DE IMAGENES      " << endl;
+        cout << "       GENERADOR DE IMAGENES     " << endl;
         cout << "========================================" << endl;
         cout << " 1. Realizar Carga Masiva" << endl;
         cout << " 2. Generar Reporte de Capas" << endl;
-        cout << " 3. Salir" << endl;
+        cout << " 3. Generar Reporte de Imagenes" << endl;
+        cout << " 4. Salir" << endl;
         cout << "========================================" << endl;
         cout << "Ingrese una opcion: ";
         
@@ -31,16 +34,18 @@ void menuPrincipal() {
                 cargarUsuarios("../entradas/usuarios.usr");
                 break;
             case 2:
-                // Llamamos a la nueva funcion de reportes
                 graficarArbolCapas(arbol_capas);
                 break;
             case 3:
+                graficarListaImagenes(lista_imagenes); // <-- LLAMAMOS AL NUEVO REPORTE
+                break;
+            case 4:
                 cout << "\nSaliendo del programa. ¡Nos vemos!" << endl;
                 break;
             default:
                 cout << "\nOpcion no valida. Por favor intente de nuevo." << endl;
         }
-    } while(opcion != 3);
+    } while(opcion != 4);
 }
 
 int main() {
