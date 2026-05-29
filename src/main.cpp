@@ -12,11 +12,10 @@ extern ArbolCapas* arbol_capas;
 extern ListaImagenes* lista_imagenes;
 extern ArbolUsuarios* arbol_usuarios; 
 
-// --- SUB-MENU CRUD (MANTENIMIENTO) ---
 void menuCRUD() {
     int opcion = 0;
     do {
-        cout << "\n--- MANTENIMIENTO ---" << endl;
+        cout << "\n--- MANTENIMIENTO (CRUD) ---" << endl;
         cout << " 1. Agregar Usuario" << endl;
         cout << " 2. Modificar Usuario" << endl;
         cout << " 3. Eliminar Usuario" << endl;
@@ -61,7 +60,6 @@ void menuCRUD() {
                 cout << "\nIngrese el nombre del usuario dueno de la imagen: ";
                 cin >> nombreUser;
                 
-                // 1. Verificamos que el usuario exista
                 NodoUsuario* actual = arbol_usuarios->raiz;
                 while (actual != nullptr) {
                     if (actual->nombre == nombreUser) break;
@@ -81,7 +79,6 @@ void menuCRUD() {
                         break;
                     }
 
-                    // 2. Verificamos que el ID de la imagen NO exista en la lista circular
                     bool existe = false;
                     if (lista_imagenes->cabeza != nullptr) {
                         NodoImagen* aux = lista_imagenes->cabeza;
@@ -97,7 +94,6 @@ void menuCRUD() {
                     if (existe) {
                         cout << "Error: La imagen con ID " << idImg << " ya existe en el sistema." << endl;
                     } else {
-                        // 3. Insertamos en la lista circular general y luego en el usuario
                         lista_imagenes->insertar(idImg);
                         arbol_usuarios->agregarImagen(nombreUser, idImg);
                         cout << "Imagen agregada con exito." << endl;
@@ -119,10 +115,7 @@ void menuCRUD() {
                     break;
                 }
                 
-                // 1. Borramos de la lista del usuario (si la tiene)
                 arbol_usuarios->eliminarImagenDeUsuario(nombreUser, idImg);
-                
-                // 2. Borramos de la lista circular general (y limpiamos sus capas en memoria)
                 lista_imagenes->eliminarImagen(idImg);
                 break;
             }
@@ -135,7 +128,6 @@ void menuCRUD() {
     } while (opcion != 6);
 }
 
-// --- SUB-MENU GENERACION DE IMAGENES ---
 void menuGeneracionImagenes() {
     int opcion = 0;
     do {
@@ -259,7 +251,6 @@ void menuGeneracionImagenes() {
     } while (opcion != 5);
 }
 
-// --- MENU PRINCIPAL ---
 void menuPrincipal() {
     int opcion = 0;
     do {
@@ -271,7 +262,7 @@ void menuPrincipal() {
         cout << " 3. Generar Reporte de Imagenes" << endl;
         cout << " 4. Generar Reporte de Usuarios" << endl;
         cout << " 5. Generar Imagen Final" << endl;
-        cout << " 6. Mantenimiento" << endl;
+        cout << " 6. Mantenimiento (CRUD Usuarios/Imagenes)" << endl;
         cout << " 7. Salir" << endl;
         cout << "========================================" << endl;
         cout << "Ingrese una opcion: ";
@@ -289,9 +280,41 @@ void menuPrincipal() {
                 cargarImagenes("../entradas/imagenes.im");
                 cargarUsuarios("../entradas/usuarios.usr");
                 break;
-            case 2:
-                graficarArbolCapas(arbol_capas);
+            case 2: {
+                int subOpcion;
+                cout << "\n--- REPORTES DE CAPAS ---" << endl;
+                cout << "1. Diagrama del Arbol de Capas" << endl;
+                cout << "2. Diagrama Logico de Matriz Dispersa" << endl;
+                cout << "Ingrese opcion: ";
+                if (!(cin >> subOpcion)) {
+                    cin.clear();
+                    cin.ignore(10000, '\n');
+                    cout << "Error: Opcion invalida." << endl;
+                    break;
+                }
+                
+                if(subOpcion == 1) {
+                    graficarArbolCapas(arbol_capas);
+                } else if(subOpcion == 2) {
+                    int idCapa;
+                    cout << "Ingrese el ID de la capa para ver su matriz: ";
+                    if (!(cin >> idCapa)) {
+                        cin.clear();
+                        cin.ignore(10000, '\n');
+                        cout << "Error: ID invalido." << endl;
+                        break;
+                    }
+                    MatrizDispersa* matEncontrada = arbol_capas->buscarCapa(idCapa);
+                    if(matEncontrada != nullptr) {
+                        graficarMatrizLogica(idCapa, matEncontrada);
+                    } else {
+                        cout << "Error: La capa " << idCapa << " no existe." << endl;
+                    }
+                } else {
+                    cout << "Opcion no valida." << endl;
+                }
                 break;
+            }
             case 3:
                 graficarListaImagenes(lista_imagenes);
                 break;

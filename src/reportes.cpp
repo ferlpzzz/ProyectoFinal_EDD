@@ -234,7 +234,7 @@ void generarImagenPorLista(int id_imagen, ListaImagenes* lista, ArbolCapas* arbo
     string comando = "dot -Tpng " + rutaDot + " -o ../output/imagen_final_" + to_string(id_imagen) + ".png";
     system(comando.c_str());
     
-    cout << "¡Imagen Final " << id_imagen << " dibujada exitosamente en la carpeta 'output'!" << endl;
+    cout << "Imagen Final " << id_imagen << " dibujada exitosamente en la carpeta 'output'." << endl;
 }
 
 void generarImagenPorCapa(int id_capa, ArbolCapas* arbol) {
@@ -284,10 +284,8 @@ void generarImagenPorCapa(int id_capa, ArbolCapas* arbol) {
     string comando = "dot -Tpng " + rutaDot + " -o ../output/capa_individual_" + to_string(id_capa) + ".png";
     system(comando.c_str());
     
-    cout << "¡Capa individual " << id_capa << " dibujada exitosamente en la carpeta 'output'!" << endl;
+    cout << "Capa individual " << id_capa << " dibujada exitosamente en la carpeta 'output'." << endl;
 }
-
-// --- LOGICA DE RECORRIDOS ---
 
 void recPreorden(NodoCapas* nodo, int* arr, int n, int& cont) {
     if (nodo == nullptr || cont >= n) return;
@@ -375,7 +373,6 @@ void generarImagenPorRecorrido(int n, int tipo, ArbolCapas* arbol) {
         for (int c = 1; c <= anchoMax; c++) {
             string colorFinal = "transparent";
             
-            // Apilamos las capas segun el orden en que las encontramos en el recorrido
             for (int i = 0; i < encontradas; i++) {
                 MatrizDispersa* mat = arbol->buscarCapa(capasRecorridas[i]);
                 if (mat != nullptr) {
@@ -403,7 +400,109 @@ void generarImagenPorRecorrido(int n, int tipo, ArbolCapas* arbol) {
     string comando = "dot -Tpng " + rutaDot + " -o ../output/imagen_recorrido_" + nombreRecorrido + ".png";
     system(comando.c_str());
     
-    cout << "¡Imagen por " << nombreRecorrido << " dibujada exitosamente en la carpeta 'output'!" << endl;
+    cout << "Imagen por " << nombreRecorrido << " dibujada exitosamente en la carpeta 'output'." << endl;
 
-    delete[] capasRecorridas; // Liberamos memoria de forma limpia
+    delete[] capasRecorridas; 
+}
+
+void graficarMatrizLogica(int id_capa, MatrizDispersa* matriz) {
+    if (matriz == nullptr || matriz->raiz == nullptr) {
+        cout << "La matriz esta vacia." << endl;
+        return;
+    }
+
+    string rutaDot = "../output/matriz_logica_" + to_string(id_capa) + ".dot";
+    ofstream archivo(rutaDot);
+
+    archivo << "digraph MatrizLogica {\n";
+    archivo << "    node [shape=box, margin=0.1, fontcolor=black];\n";
+    archivo << "    rankdir=TB;\n"; 
+
+    // 1. Cabecera principal (Raiz)
+    archivo << "    raiz [label=\"matriz\", group=0];\n";
+
+    // 2. Cabeceras de Columnas
+    archivo << "    { rank=same; raiz; ";
+    NodoMatriz* auxCol = matriz->raiz->derecha;
+    while (auxCol != nullptr) {
+        archivo << "C" << auxCol->columna << "; ";
+        auxCol = auxCol->derecha;
+    }
+    archivo << "}\n";
+
+    auxCol = matriz->raiz->derecha;
+    while (auxCol != nullptr) {
+        archivo << "    C" << auxCol->columna << " [label=\"" << auxCol->columna << "\", group=" << auxCol->columna << "];\n";
+        auxCol = auxCol->derecha;
+    }
+
+    if (matriz->raiz->derecha != nullptr) {
+        archivo << "    raiz -> C" << matriz->raiz->derecha->columna << " [dir=both];\n";
+        auxCol = matriz->raiz->derecha;
+        while (auxCol->derecha != nullptr) {
+            archivo << "    C" << auxCol->columna << " -> C" << auxCol->derecha->columna << " [dir=both];\n";
+            auxCol = auxCol->derecha;
+        }
+    }
+
+    // 3. Filas y Nodos Internos
+    NodoMatriz* auxFila = matriz->raiz->abajo;
+    while (auxFila != nullptr) {
+        archivo << "    F" << auxFila->fila << " [label=\"" << auxFila->fila << "\", group=0];\n";
+
+        archivo << "    { rank=same; F" << auxFila->fila << "; ";
+        NodoMatriz* auxNodo = auxFila->derecha;
+        while (auxNodo != nullptr) {
+            archivo << "N" << auxNodo->fila << "_" << auxNodo->columna << "; ";
+            auxNodo = auxNodo->derecha;
+        }
+        archivo << "}\n";
+
+        auxNodo = auxFila->derecha;
+        if (auxNodo != nullptr) {
+            archivo << "    F" << auxFila->fila << " -> N" << auxNodo->fila << "_" << auxNodo->columna << " [dir=both];\n";
+            while (auxNodo != nullptr) {
+                archivo << "    N" << auxNodo->fila << "_" << auxNodo->columna 
+                        << " [label=\"" << auxNodo->color << "\", group=" << auxNodo->columna << "];\n";
+
+                if (auxNodo->derecha != nullptr) {
+                    archivo << "    N" << auxNodo->fila << "_" << auxNodo->columna 
+                            << " -> N" << auxNodo->derecha->fila << "_" << auxNodo->derecha->columna << " [dir=both];\n";
+                }
+                auxNodo = auxNodo->derecha;
+            }
+        }
+        auxFila = auxFila->abajo;
+    }
+
+    if (matriz->raiz->abajo != nullptr) {
+        archivo << "    raiz -> F" << matriz->raiz->abajo->fila << " [dir=both];\n";
+        auxFila = matriz->raiz->abajo;
+        while (auxFila->abajo != nullptr) {
+            archivo << "    F" << auxFila->fila << " -> F" << auxFila->abajo->fila << " [dir=both];\n";
+            auxFila = auxFila->abajo;
+        }
+    }
+
+    auxCol = matriz->raiz->derecha;
+    while (auxCol != nullptr) {
+        NodoMatriz* auxNodo = auxCol->abajo;
+        if (auxNodo != nullptr) {
+            archivo << "    C" << auxCol->columna << " -> N" << auxNodo->fila << "_" << auxCol->columna << " [dir=both];\n";
+            while (auxNodo->abajo != nullptr) {
+                archivo << "    N" << auxNodo->fila << "_" << auxNodo->columna 
+                        << " -> N" << auxNodo->abajo->fila << "_" << auxNodo->abajo->columna << " [dir=both];\n";
+                auxNodo = auxNodo->abajo;
+            }
+        }
+        auxCol = auxCol->derecha;
+    }
+
+    archivo << "}\n";
+    archivo.close();
+
+    string comando = "dot -Tpng " + rutaDot + " -o ../output/matriz_logica_" + to_string(id_capa) + ".png";
+    system(comando.c_str());
+
+    cout << "Diagrama logico de la Matriz generado exitosamente." << endl;
 }
